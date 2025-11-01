@@ -2,6 +2,7 @@
   "name": "App Grid Wizard",
   "description": " A gnome shell extension that simplifies organizing your applications into predefined categories in the app grid. ",
   "uuid": "app-grid-wizard@mirzadeh.pro",
-  "url": "https://github.com/MahdiMirzade/grid-app-wizard",
-  "shell-version": [ "45", "46", "47", "48" ]
+  "url": "https://github.com/MahdiMirzadeh/app-grid-wizard",
+  "shell-version": [ "45", "46", "47", "48", "49" ],
+  "settings-schema": "org.gnome.shell.extensions.app-grid-wizard"
 }

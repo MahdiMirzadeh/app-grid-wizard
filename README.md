@@ -1,6 +1,6 @@
 # App Grid Wizard - GNOME Extension
 
-**App Grid Wizard** is a GNOME Shell extension that simplifies organizing your applications into predefined categories in the app grid. With a single click, it automatically groups your apps into folders like "Accessories," "Games," "Graphics," "Internet," and more. It also monitors app installations and updates to keep your app grid organized.
+A GNOME Shell extension that auto-organizes your app grid into sensible folders and keeps it tidy over time — while preserving a safe, one-click restore to your original layout.
 
 ![App Grid Wizard in Action](screenshot.png)
 
@@ -8,11 +8,13 @@
 
 ## Features
 
-- **One-Click Organization**: Automatically organizes apps into predefined folders based on their categories.
-- **Dynamic Monitoring**: Monitors app installations and updates to keep your app grid organized.
-- **Customizable Folders**: Predefined folders for common app categories like "Games," "Office," "Programming," and more.
-- **Quick Settings Toggle**: Easily enable or disable the extension from the GNOME Quick Settings menu.
-- **Lightweight**: Minimal impact on system performance.
+- One-click organize: creates 13 curated folders (Accessories, Games, Graphics, Internet, …)
+- Non-destructive by design: snapshot of your current folders and app layout on first enable
+- Manual Restore: restores both folders and app layout to the pre-extension state
+- Quick Settings integration: toggle + menu with Restore and Settings
+- Auto-compaction: resets `app-picker-layout` so GNOME auto-paginates compactly
+- Watches app changes: re-applies folder config when apps are installed/removed (debounced)
+- GNOME 45–49
 
 ---
 
@@ -20,80 +22,158 @@
 
 ### From extensions.gnome.org
 1. Visit the [App Grid Wizard page on extensions.gnome.org](https://extensions.gnome.org/extension/7867/app-grid-wizard/).
-2. Click the toggle switch to install the extension.
-3. Enable the extension using GNOME Extensions or the `Extensions` app.
+2. Click the toggle to install.
+3. Log out and back in.
 
-### Manual Installation
-1. Clone this repository or download the source code:
-   ```bash
-   git clone https://github.com/MahdiMirzade/app-grid-wizard.git
-   ```
-2. Move the extension folder to `~/.local/share/gnome-shell/extensions/`:
-   ```bash
-   mv app-grid-wizard ~/.local/share/gnome-shell/extensions/app-grid-wizard@mirzadeh.pro
-   ```
-3. Restart GNOME Shell by pressing `Alt + F2`, typing `r`, and pressing `Enter`. (You'll need to log out if you're using wayland)
-4. Enable the extension using GNOME Extensions or the `Extensions` app.
+### Manual installation
+```bash
+# 1) Get the code
+git clone https://github.com/MahdiMirzadeh/app-grid-wizard.git
+cd app-grid-wizard
+
+# 2) Compile schema
+glib-compile-schemas schemas/
+
+# 3) Build and install
+zip -r app-grid-wizard.zip extension.js prefs.js metadata.json schemas/
+gnome-extensions install app-grid-wizard.zip --force
+
+# 4) Enable
+gnome-extensions enable app-grid-wizard@mirzadeh.pro
+# Then log out/in
+```
 
 ---
 
 ## Usage
 
-1. Open the GNOME Quick Settings menu by clicking the system menu in the top-right corner.
-2. Click the **App Grid Wizard** toggle to enable or disable the extension.
-3. When enabled, your apps will be automatically organized into folders in the app grid.
-4. The extension will monitor app installations and updates to keep your app grid organized.
+- Toggle ON in Quick Settings → folders are created and layout is compacted.
+- Toggle OFF → extension stops monitoring (folders remain).
+- Quick Settings ▸ Restore Original Layout → restores snapshot (folders + layout) and turns the extension OFF.
+- Preferences ▸ per-folder toggles + Restore button (also turns the extension OFF).
+
+Note: After Restore, log out/in to ensure the app grid fully reflects changes.
 
 ---
 
-## Supported Folders
+## Technical details
 
-The extension organizes apps into the following folders:
+This extension changes only GSettings — no private Shell APIs.
+
+### Data model (GSettings)
+- App folders: `org.gnome.desktop.app-folders`
+  - Key: `folder-children` (as)
+  - Per-folder schema: `org.gnome.desktop.app-folders.folder` at path `/org/gnome/desktop/app-folders/folders/<id>/`
+    - Keys used: `name` (s), `categories` (as)
+  - Managed IDs: `agw-*` only (e.g. `agw-internet`)
+- App grid layout: `org.gnome.shell`
+  - Key: `app-picker-layout` (aa{sv}) — snapshot/restore; empty `[]` lets GNOME auto-pack
+- Extension state: `org.gnome.shell.extensions.app-grid-wizard`
+  - `enabled` (b)
+  - `snapshot-taken` (b)
+  - `original-folder-children` (as)
+  - `original-app-layout` (aa{sv})
+  - Per-folder booleans: `folder-accessories`, `folder-games`, …
+
+### Behavior spec (contract)
+- On first enable when `snapshot-taken=false`:
+  1. Snapshot `folder-children` → `original-folder-children`
+  2. Snapshot `app-picker-layout` → `original-app-layout`
+- Apply (enable or folder pref change):
+  1. Compute enabled `agw-*` IDs
+  2. Set `folder-children = <enabled agw IDs>` (replaces non-AGW for compactness)
+  3. Write each folder’s `name`/`categories`
+  4. Set `app-picker-layout = []` (deferred 300ms) to force compact pages
+- Restore (Quick Menu or Prefs):
+  1. Write `folder-children = original-folder-children`
+  2. After 200ms, set `app-picker-layout = original-app-layout` if non-empty, else `[]`
+  3. Set `enabled=false`, `snapshot-taken=false`
+- Toggle OFF: stop monitoring; do not remove folders (non-destructive)
+
+### Events / timers
+- Listen: `Shell.AppSystem::installed-changed`
+- Debounce: 2000ms before re-apply
+- Layout writes: 200–300ms after folder changes to avoid grid races
+
+### Logging (grep with journalctl)
+- Tag prefix: `App-Grid-Wizard:`
+- Examples: `Folders applied`, `Snapshot saved`, `Layout set to [] for auto-pagination`
+
+### Invariants
+- Only `agw-*` folder IDs are created/managed by the extension
+- Restore never writes non-snapshotted data
+- No private GNOME Shell APIs are called
+
+### File layout
+- `extension.js` – runtime logic, Quick Settings toggle and menu
+- `prefs.js` – Adw preferences window
+- `schemas/org.gnome.shell.extensions.app-grid-wizard.gschema.xml` – extension keys
+- `metadata.json` – UUID `app-grid-wizard@mirzadeh.pro`
+
+### Debugging quick reference
+```bash
+# Read current folders
+gsettings get org.gnome.desktop.app-folders folder-children
+
+# Read layout (non-empty means manual layout exists)
+gsettings get org.gnome.shell app-picker-layout
+
+# Force compact layout
+gsettings set org.gnome.shell app-picker-layout '[]'
+
+# Watch logs
+journalctl /usr/bin/gnome-shell -f | grep "App-Grid-Wizard"
+```
+
+### Limitations
+- GNOME always lists folders before apps; interleaving is not supported
+- No explicit uninstall hook — use Restore, then disable/uninstall
+
+---
+
+## Supported folders
 
 | Folder Name         | Categories Included                          |
-|----------------------|---------------------------------------------|
-| Accessories          | Utility                                     |
-| Chrome Apps          | Chrome Apps                                 |
-| Games                | Game                                        |
-| Graphics             | Graphics                                    |
-| Internet             | Network, WebBrowser, Email                  |
-| Office               | Office                                      |
-| Programming          | Development                                 |
-| Science              | Science                                     |
-| Sound & Video        | AudioVideo, Audio, Video                    |
-| System Tools         | System, Settings                            |
-| Universal Access     | Accessibility                               |
-| Wine                 | Wine, X-Wine, Wine-Programs-Accessories     |
-| Waydroid             | Waydroid, X-WayDroid-App                    |
+|---------------------|-----------------------------------------------|
+| Accessories         | Utility                                       |
+| Chrome Apps         | chrome-apps                                   |
+| Games               | Game                                          |
+| Graphics            | Graphics                                      |
+| Internet            | Network, WebBrowser, Email                    |
+| Office              | Office                                        |
+| Programming         | Development                                   |
+| Science             | Science                                       |
+| Sound & Video       | AudioVideo, Audio, Video                      |
+| System Tools        | System, Settings                               |
+| Universal Access    | Accessibility                                 |
+| Wine                | Wine, X-Wine, Wine-Programs-Accessories       |
+| Waydroid            | Waydroid, X-WayDroid-App                      |
+
+---
+
+## Troubleshooting
+
+- First page shows a single stray app? The extension now sets `app-picker-layout` to `[]` after changes; log out/in once if it persists.
+- Want your original layout back? Use Restore (Quick Settings or Preferences), then log out/in.
 
 ---
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute to the development of App Grid Wizard, follow these steps:
+PRs and issues welcome:
+- Repo: https://github.com/MahdiMirzadeh/app-grid-wizard
+- Open issues: https://github.com/MahdiMirzadeh/app-grid-wizard/issues
 
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Commit your changes and push to your fork.
-4. Submit a pull request.
+---
+
+## Donate
+
+If this project helps you, please consider supporting it:
+
+[![Donate](https://img.shields.io/badge/Donate-%E2%9D%A4-red)](https://mirzadeh.pro/donate)
 
 ---
 
 ## License
 
-This project is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-- GNOME Shell and GNOME Extensions for providing the platform.
-- The GNOME community for their support and inspiration.
-
----
-
-## Feedback and Support
-
-If you encounter any issues or have suggestions for improvement, please [open an issue](https://github.com/MahdiMirzade/app-grid-wizard/issues) on GitHub.
-
-Enjoy a cleaner and more organized app grid with **App Grid Wizard**!
+MIT — see [LICENSE](LICENSE).

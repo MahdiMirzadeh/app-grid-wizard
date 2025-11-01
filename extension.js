@@ -5,112 +5,232 @@ import Shell from 'gi://Shell';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
-import {QuickToggle, SystemIndicator} from 'resource:///org/gnome/shell/ui/quickSettings.js';
+import {QuickToggle, QuickMenuToggle, SystemIndicator} from 'resource:///org/gnome/shell/ui/quickSettings.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-// Constants
-const SHOW_INDICATOR = false;
 const APP_FOLDER_SCHEMA_ID = 'org.gnome.desktop.app-folders';
 const APP_FOLDER_SCHEMA_PATH = '/org/gnome/desktop/app-folders/folders/';
+const DEBOUNCE_DELAY = 2000;
 
-// Folder configurations
-const FOLDER_CONFIGS = {
-    'accessories': {name: 'Accessories', categories: ['Utility']},
-    'chrome-apps': {name: 'Chrome Apps', categories: ['chrome-apps']},
-    'games': {name: 'Games', categories: ['Game']},
-    'graphics': {name: 'Graphics', categories: ['Graphics']},
-    'internet': {name: 'Internet', categories: ['Network', 'WebBrowser', 'Email']},
-    'office': {name: 'Office', categories: ['Office']},
-    'programming': {name: 'Programming', categories: ['Development']},
-    'science': {name: 'Science', categories: ['Science']},
-    'sound---video': {name: 'Sound & Video', categories: ['AudioVideo', 'Audio', 'Video']},
-    'system-tools': {name: 'System Tools', categories: ['System', 'Settings']},
-    'universal-access': {name: 'Universal Access', categories: ['Accessibility']},
-    'wine': {name: 'Wine', categories: ['Wine', 'X-Wine', 'Wine-Programs-Accessories']},
-    'waydroid': {name: 'Waydroid', categories: ['Waydroid', 'X-WayDroid-App']}
-};
+const FOLDER_CONFIGS = [
+    {id: 'agw-accessories', schemaKey: 'folder-accessories', name: 'Accessories', categories: ['Utility']},
+    {id: 'agw-chrome-apps', schemaKey: 'folder-chrome-apps', name: 'Chrome Apps', categories: ['chrome-apps']},
+    {id: 'agw-games', schemaKey: 'folder-games', name: 'Games', categories: ['Game']},
+    {id: 'agw-graphics', schemaKey: 'folder-graphics', name: 'Graphics', categories: ['Graphics']},
+    {id: 'agw-internet', schemaKey: 'folder-internet', name: 'Internet', categories: ['Network', 'WebBrowser', 'Email']},
+    {id: 'agw-office', schemaKey: 'folder-office', name: 'Office', categories: ['Office']},
+    {id: 'agw-programming', schemaKey: 'folder-programming', name: 'Programming', categories: ['Development']},
+    {id: 'agw-science', schemaKey: 'folder-science', name: 'Science', categories: ['Science']},
+    {id: 'agw-sound-video', schemaKey: 'folder-sound-video', name: 'Sound & Video', categories: ['AudioVideo', 'Audio', 'Video']},
+    {id: 'agw-system-tools', schemaKey: 'folder-system-tools', name: 'System Tools', categories: ['System', 'Settings']},
+    {id: 'agw-universal-access', schemaKey: 'folder-universal-access', name: 'Universal Access', categories: ['Accessibility']},
+    {id: 'agw-wine', schemaKey: 'folder-wine', name: 'Wine', categories: ['Wine', 'X-Wine', 'Wine-Programs-Accessories']},
+    {id: 'agw-waydroid', schemaKey: 'folder-waydroid', name: 'Waydroid', categories: ['Waydroid', 'X-WayDroid-App']}
+];
 
 class AppFolderManager {
-    constructor() {
+    constructor(extensionSettings) {
         this._folderSettings = new Gio.Settings({schema_id: APP_FOLDER_SCHEMA_ID});
+        this._extensionSettings = extensionSettings;
+        this._shellSettings = new Gio.Settings({schema_id: 'org.gnome.shell'});
+        this._sources = new Set();
     }
 
-    setupFolders() {
-        this._folderSettings.set_strv('folder-children', Object.keys(FOLDER_CONFIGS));
+    _trackSource(id) {
+        if (id)
+            this._sources.add(id);
+        return id;
+    }
 
-        for (const [folderId, config] of Object.entries(FOLDER_CONFIGS)) {
-            const folderPath = `${APP_FOLDER_SCHEMA_PATH}${folderId}/`;
+    cancelSources() {
+        for (const id of this._sources)
+            GLib.Source.remove(id);
+        this._sources.clear();
+    }
+
+    resetLayout() {
+        this._trackSource(GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
+            const empty = new GLib.Variant('aa{sv}', []);
+            this._shellSettings.set_value('app-picker-layout', empty);
+            console.debug('App-Grid-Wizard: Layout set to [] for auto-pagination');
+            return GLib.SOURCE_REMOVE;
+        }));
+    }
+
+    takeSnapshot() {
+        if (!this._extensionSettings.get_boolean('snapshot-taken')) {
+            const current = this._folderSettings.get_strv('folder-children');
+            this._extensionSettings.set_strv('original-folder-children', current);
+            try {
+                const layout = this._shellSettings.get_value('app-picker-layout');
+                this._extensionSettings.set_value('original-app-layout', layout);
+            } catch (e) {
+                console.error('App-Grid-Wizard: Failed to snapshot app-picker-layout', e);
+            }
+            this._extensionSettings.set_boolean('snapshot-taken', true);
+            console.debug('App-Grid-Wizard: Snapshot saved');
+        }
+    }
+
+    restoreSnapshot() {
+        if (!this._extensionSettings.get_boolean('snapshot-taken'))
+            return;
+
+        const original = this._extensionSettings.get_strv('original-folder-children');
+        const originalLayout = this._extensionSettings.get_value('original-app-layout');
+        
+        this._folderSettings.set_strv('folder-children', original);
+        // Apply original layout after folders are present
+        GLib.timeout_add(GLib.PRIORITY_LOW, 200, () => {
+            try {
+                if (originalLayout && originalLayout.n_children && originalLayout.n_children() > 0)
+                    this._shellSettings.set_value('app-picker-layout', originalLayout);
+                else
+                    this.resetLayout();
+            } catch (e) {
+                console.error('App-Grid-Wizard: Failed to apply original app layout; falling back to auto layout', e);
+                this.resetLayout();
+            }
+            console.debug('App-Grid-Wizard: Snapshot restored');
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    applyFolders() {
+        const enabledConfigs = FOLDER_CONFIGS.filter(c => 
+            this._extensionSettings.get_boolean(c.schemaKey)
+        );
+        
+        // Replace all folders with only our enabled folders
+        const ourIds = enabledConfigs.map(c => c.id);
+        this._folderSettings.set_strv('folder-children', ourIds);
+        
+        // Configure enabled folders
+        for (const config of enabledConfigs) {
+            const folderPath = `${APP_FOLDER_SCHEMA_PATH}${config.id}/`;
             const folderSchema = Gio.Settings.new_with_path('org.gnome.desktop.app-folders.folder', folderPath);
-
             folderSchema.set_string('name', config.name);
             folderSchema.set_strv('categories', config.categories);
         }
+        
+        console.debug('App-Grid-Wizard: Folders applied');
+        this.resetLayout();
     }
 
-    clearFolders() {
-        console.log('App-Grid-Wizard: Clearing folders...');
-        try {
-            this._folderSettings.set_strv('folder-children', []);
-            Gio.Settings.sync();
-            this._refreshAppDisplay();
-            console.log('App-Grid-Wizard: Folders cleared');
-        } catch (error) {
-            console.error(error, 'App-Grid-Wizard: Error clearing folders');
-        }
-    }
-
-    _refreshAppDisplay() {
-        const appDisplay = Main.overview.viewSelector?._appDisplay || Main.overview.viewSelector?.appDisplay;
-        if (appDisplay) {
-            appDisplay._redisplay();
-            Main.overview.viewSelector._overview.controls._thumbnailsBox.get_children().forEach(child => child.destroy());
-            Main.overview.viewSelector._overview.controls._thumbnailsBox._redisplay();
-        }
+    removeFolders() {
+        const current = this._folderSettings.get_strv('folder-children');
+        const ourIds = FOLDER_CONFIGS.map(c => c.id);
+        const filtered = current.filter(id => !ourIds.includes(id));
+        this._folderSettings.set_strv('folder-children', filtered);
+        console.debug('App-Grid-Wizard: Folders removed');
     }
 }
 
 const WizardToggle = GObject.registerClass(
-class WizardToggle extends QuickToggle {
-    _init() {
+class WizardToggle extends QuickMenuToggle {
+    _init(extensionSettings, uuid) {
         super._init({
             title: 'App Grid Wizard',
             iconName: 'view-grid-symbolic',
             toggleMode: true,
         });
 
-        this._folderManager = new AppFolderManager();
+        this._extensionSettings = extensionSettings;
+        this._folderManager = new AppFolderManager(extensionSettings);
         this._monitorId = null;
+        this._debounceTimeoutId = null;
+        this._settingsChangedIds = [];
+        this._uuid = uuid;
 
-	// Explicitly set the toggle state to false by default
-        this.checked = false;
-	
-	// Connect the click event
+        this.checked = this._extensionSettings.get_boolean('enabled');
         this.connect('clicked', this._onClicked.bind(this));
+        
+        // Reflect external changes to the 'enabled' flag (e.g., from preferences)
+        this._enabledChangedId = this._extensionSettings.connect('changed::enabled', () => {
+            const enabled = this._extensionSettings.get_boolean('enabled');
+            if (this.checked === enabled)
+                return;
+            this.checked = enabled;
+            if (enabled) {
+                this._folderManager.takeSnapshot();
+                this._folderManager.applyFolders();
+                this._startMonitoring();
+            } else {
+                this._folderManager.resetLayout();
+                this._stopMonitoring();
+            }
+        });
+        
+        // Watch for folder preference changes
+        for (const config of FOLDER_CONFIGS) {
+            const id = this._extensionSettings.connect(`changed::${config.schemaKey}`, () => {
+                if (this.checked) {
+                    this._scheduleUpdate();
+                }
+            });
+            this._settingsChangedIds.push(id);
+        }
+        
+        // Menu items
+        const restoreItem = new PopupMenu.PopupMenuItem('Restore Original Layout');
+        restoreItem.connect('activate', () => {
+            this._folderManager.restoreSnapshot();
+            this._extensionSettings.set_boolean('snapshot-taken', false);
+            this._extensionSettings.set_boolean('enabled', false);
+            this.checked = false;
+            this._stopMonitoring();
+        });
+        this.menu.addMenuItem(restoreItem);
+
+        const prefsItem = new PopupMenu.PopupMenuItem('More Settings…');
+        prefsItem.connect('activate', () => {
+            try {
+                Main.extensionManager.openExtensionPrefs(this._uuid, '', null);
+            } catch (e) {
+                console.error('App-Grid-Wizard: Failed to open preferences', e);
+            }
+        });
+        this.menu.addMenuItem(prefsItem);
+        
+        if (this.checked) {
+            this._startMonitoring();
+        }
     }
 
     _onClicked() {
+        this._extensionSettings.set_boolean('enabled', this.checked);
+        
         if (this.checked) {
-            this._folderManager.setupFolders();
+            this._folderManager.takeSnapshot();
+            this._folderManager.applyFolders();
             this._startMonitoring();
         } else {
-            this._folderManager.clearFolders();
+            // Non-destructive: keep folders, just stop monitoring and compact layout
+            this._folderManager.resetLayout();
             this._stopMonitoring();
         }
     }
 
     _startMonitoring() {
-        console.log('App-Grid-Wizard: Started monitoring for app changes');
-
         if (this._monitorId) return;
 
         const appSystem = Shell.AppSystem.get_default();
         this._monitorId = appSystem.connect('installed-changed', () => {
-            console.log('App-Grid-Wizard: Detected app installation/removal');
-            console.log('App-Grid-Wizard: Updating App Folders...');
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-                this._folderManager.setupFolders();
-                console.log("App-Grid-Wizard: App Folders Updated.");
-                return GLib.SOURCE_REMOVE;
-            });
+            this._scheduleUpdate();
+        });
+        console.debug('App-Grid-Wizard: Monitoring started');
+    }
+
+    _scheduleUpdate() {
+        if (this._debounceTimeoutId)
+            GLib.Source.remove(this._debounceTimeoutId);
+        
+        this._debounceTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, DEBOUNCE_DELAY, () => {
+            if (this.checked) {
+                this._folderManager.applyFolders();
+            }
+            this._debounceTimeoutId = null;
+            return GLib.SOURCE_REMOVE;
         });
     }
 
@@ -118,61 +238,66 @@ class WizardToggle extends QuickToggle {
         if (this._monitorId) {
             Shell.AppSystem.get_default().disconnect(this._monitorId);
             this._monitorId = null;
-            console.log('App-Grid-Wizard: Stopped monitoring');
         }
+        
+        if (this._debounceTimeoutId) {
+            GLib.Source.remove(this._debounceTimeoutId);
+            this._debounceTimeoutId = null;
+        }
+        console.debug('App-Grid-Wizard: Monitoring stopped');
     }
 
     destroy() {
         this._stopMonitoring();
+        
+        // Disconnect settings watchers
+        for (const id of this._settingsChangedIds) {
+            this._extensionSettings.disconnect(id);
+        }
+        this._settingsChangedIds = [];
+        if (this._enabledChangedId)
+            this._extensionSettings.disconnect(this._enabledChangedId);
+        this._enabledChangedId = null;
+        
+        // Cancel any pending layout/reset sources
+        this._folderManager.cancelSources();
         super.destroy();
     }
 });
 
 const WizardIndicator = GObject.registerClass(
 class WizardIndicator extends SystemIndicator {
-    _init() {
+    _init(extensionSettings, uuid) {
         super._init();
-
-        const toggle = new WizardToggle();
-        
-        if (SHOW_INDICATOR) {
-            this._indicator = this._addIndicator();
-            this._indicator.iconName = 'view-grid-symbolic';
-
-            toggle.bind_property('checked', this._indicator, 'visible', GObject.BindingFlags.SYNC_CREATE);
-        }
-
-        this.quickSettingsItems.push(toggle);
+        this.quickSettingsItems.push(new WizardToggle(extensionSettings, uuid));
     }
 });
 
 export default class WizardManagerExtension extends Extension {
     enable() {
-        this._indicator = new WizardIndicator();
+        this._settings = this.getSettings();
+        this._indicator = new WizardIndicator(this._settings, this.metadata.uuid);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);
-
-	// Ensure the toggle is off when the extension is enabled
-        const toggle = this._indicator.quickSettingsItems.find(item => item instanceof WizardToggle);
-        if (toggle) {
-	    toggle.checked = false;
-	}
-
-        // Add a delay for the initial setup
-        console.log('App-Grid-Wizard: Started Initial app folder creation.');
-	GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
-            const toggle = this._indicator.quickSettingsItems.find(item => item instanceof WizardToggle);
-            if (toggle && !toggle.checked) {
-                toggle.checked = true;
-                toggle._onClicked();
-            }
-            console.log('App-Grid-Wizard: End of Initial app folder creation.');
-            return GLib.SOURCE_REMOVE;
-        });
+        console.debug('App-Grid-Wizard: Enabled');
     }
 
     disable() {
-        this._indicator.quickSettingsItems.forEach(item => item.destroy());
-        this._indicator.destroy();
-	this._indicator = null;
+        try {
+            if (!this._settings)
+                this._settings = this.getSettings();
+            const mgr = new AppFolderManager(this._settings);
+            mgr.resetLayout();
+        } catch (e) {
+            console.error('App-Grid-Wizard: Failed to reset layout on disable', e);
+        }
+
+        if (this._indicator) {
+            this._indicator.quickSettingsItems.forEach(item => item.destroy());
+            this._indicator.destroy();
+            this._indicator = null;
+        }
+        
+        this._settings = null;
+        console.debug('App-Grid-Wizard: Disabled');
     }
 }

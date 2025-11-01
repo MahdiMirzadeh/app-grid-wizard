@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.app-grid-wizard" path="/org/gnome/shell/extensions/app-grid-wizard/">
+    
+    <key name="enabled" type="b">
+      <default>false</default>
+      <summary>Enable auto-foldering</summary>
+      <description>Whether the extension should automatically organize apps into folders</description>
+    </key>
+
+    <key name="original-folder-children" type="as">
+      <default>[]</default>
+      <summary>Original folder-children snapshot</summary>
+      <description>Backup of folder-children before first extension enable, for restoration</description>
+    </key>
+
+    <key name="snapshot-taken" type="b">
+      <default>false</default>
+      <summary>Whether snapshot has been taken</summary>
+      <description>Indicates if original-folder-children contains a valid snapshot</description>
+    </key>
+
+    <key name="original-app-layout" type="aa{sv}">
+      <default>[]</default>
+      <summary>Original app-picker-layout snapshot</summary>
+      <description>Backup of the app grid layout before enabling the extension</description>
+    </key>
+
+    <!-- Per-folder enable toggles -->
+    <key name="folder-accessories" type="b">
+      <default>true</default>
+      <summary>Enable Accessories folder</summary>
+    </key>
+
+    <key name="folder-chrome-apps" type="b">
+      <default>true</default>
+      <summary>Enable Chrome Apps folder</summary>
+    </key>
+
+    <key name="folder-games" type="b">
+      <default>true</default>
+      <summary>Enable Games folder</summary>
+    </key>
+
+    <key name="folder-graphics" type="b">
+      <default>true</default>
+      <summary>Enable Graphics folder</summary>
+    </key>
+
+    <key name="folder-internet" type="b">
+      <default>true</default>
+      <summary>Enable Internet folder</summary>
+    </key>
+
+    <key name="folder-office" type="b">
+      <default>true</default>
+      <summary>Enable Office folder</summary>
+    </key>
+
+    <key name="folder-programming" type="b">
+      <default>true</default>
+      <summary>Enable Programming folder</summary>
+    </key>
+
+    <key name="folder-science" type="b">
+      <default>true</default>
+      <summary>Enable Science folder</summary>
+    </key>
+
+    <key name="folder-sound-video" type="b">
+      <default>true</default>
+      <summary>Enable Sound &amp; Video folder</summary>
+    </key>
+
+    <key name="folder-system-tools" type="b">
+      <default>true</default>
+      <summary>Enable System Tools folder</summary>
+    </key>
+
+    <key name="folder-universal-access" type="b">
+      <default>true</default>
+      <summary>Enable Universal Access folder</summary>
+    </key>
+
+    <key name="folder-wine" type="b">
+      <default>true</default>
+      <summary>Enable Wine folder</summary>
+    </key>
+
+    <key name="folder-waydroid" type="b">
+      <default>true</default>
+      <summary>Enable Waydroid folder</summary>
+    </key>
+
+  </schema>
+</schemalist>
