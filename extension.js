@@ -81,7 +81,7 @@ class AppFolderManager {
         
         this._folderSettings.set_strv('folder-children', original);
         // Apply original layout after folders are present
-        GLib.timeout_add(GLib.PRIORITY_LOW, 200, () => {
+        this._trackSource(GLib.timeout_add(GLib.PRIORITY_LOW, 200, () => {
             try {
                 if (originalLayout && originalLayout.n_children && originalLayout.n_children() > 0)
                     this._shellSettings.set_value('app-picker-layout', originalLayout);
@@ -93,7 +93,7 @@ class AppFolderManager {
             }
             console.debug('App-Grid-Wizard: Snapshot restored');
             return GLib.SOURCE_REMOVE;
-        });
+        }));
     }
 
     applyFolders() {
@@ -259,6 +259,8 @@ class WizardToggle extends QuickMenuToggle {
             this._extensionSettings.disconnect(this._enabledChangedId);
         this._enabledChangedId = null;
         
+        // Reset layout once on teardown to avoid sparse pages
+        this._folderManager.resetLayout();
         // Cancel any pending layout/reset sources
         this._folderManager.cancelSources();
         super.destroy();
@@ -271,6 +273,11 @@ class WizardIndicator extends SystemIndicator {
         super._init();
         this.quickSettingsItems.push(new WizardToggle(extensionSettings, uuid));
     }
+    destroy() {
+        // Ensure quick settings items are destroyed
+        this.quickSettingsItems.forEach(item => item.destroy());
+        super.destroy();
+    }
 });
 
 export default class WizardManagerExtension extends Extension {
@@ -282,21 +289,10 @@ export default class WizardManagerExtension extends Extension {
     }
 
     disable() {
-        try {
-            if (!this._settings)
-                this._settings = this.getSettings();
-            const mgr = new AppFolderManager(this._settings);
-            mgr.resetLayout();
-        } catch (e) {
-            console.error('App-Grid-Wizard: Failed to reset layout on disable', e);
-        }
-
         if (this._indicator) {
-            this._indicator.quickSettingsItems.forEach(item => item.destroy());
             this._indicator.destroy();
             this._indicator = null;
         }
-        
         this._settings = null;
         console.debug('App-Grid-Wizard: Disabled');
     }
