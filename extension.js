@@ -13,19 +13,19 @@ const APP_FOLDER_SCHEMA_PATH = '/org/gnome/desktop/app-folders/folders/';
 const DEBOUNCE_DELAY = 2000;
 
 const FOLDER_CONFIGS = [
-    {id: 'agw-accessories', schemaKey: 'folder-accessories', name: 'Accessories', categories: ['Utility']},
-    {id: 'agw-chrome-apps', schemaKey: 'folder-chrome-apps', name: 'Chrome Apps', categories: ['chrome-apps']},
-    {id: 'agw-games', schemaKey: 'folder-games', name: 'Games', categories: ['Game']},
-    {id: 'agw-graphics', schemaKey: 'folder-graphics', name: 'Graphics', categories: ['Graphics']},
-    {id: 'agw-internet', schemaKey: 'folder-internet', name: 'Internet', categories: ['Network', 'WebBrowser', 'Email']},
-    {id: 'agw-office', schemaKey: 'folder-office', name: 'Office', categories: ['Office']},
-    {id: 'agw-programming', schemaKey: 'folder-programming', name: 'Programming', categories: ['Development']},
-    {id: 'agw-science', schemaKey: 'folder-science', name: 'Science', categories: ['Science']},
-    {id: 'agw-sound-video', schemaKey: 'folder-sound-video', name: 'Sound & Video', categories: ['AudioVideo', 'Audio', 'Video']},
-    {id: 'agw-system-tools', schemaKey: 'folder-system-tools', name: 'System Tools', categories: ['System', 'Settings']},
-    {id: 'agw-universal-access', schemaKey: 'folder-universal-access', name: 'Universal Access', categories: ['Accessibility']},
-    {id: 'agw-wine', schemaKey: 'folder-wine', name: 'Wine', categories: ['Wine', 'X-Wine', 'Wine-Programs-Accessories']},
-    {id: 'agw-waydroid', schemaKey: 'folder-waydroid', name: 'Waydroid', categories: ['Waydroid', 'X-WayDroid-App']}
+    {id: 'agw-accessories', schemaKey: 'folder-accessories', name: 'Utility.directory', categories: ['Utility'], translate: true},
+    {id: 'agw-chrome-apps', schemaKey: 'folder-chrome-apps', name: 'X-GNOME-WebApplications.directory', categories: ['chrome-apps'], translate: true},
+    {id: 'agw-games', schemaKey: 'folder-games', name: 'Game.directory', categories: ['Game'], translate: true},
+    {id: 'agw-graphics', schemaKey: 'folder-graphics', name: 'Graphics.directory', categories: ['Graphics'], translate: true},
+    {id: 'agw-internet', schemaKey: 'folder-internet', name: 'Network.directory', categories: ['Network', 'WebBrowser', 'Email'], translate: true},
+    {id: 'agw-office', schemaKey: 'folder-office', name: 'Office.directory', categories: ['Office'], translate: true},
+    {id: 'agw-programming', schemaKey: 'folder-programming', name: 'Development.directory', categories: ['Development'], translate: true},
+    {id: 'agw-science', schemaKey: 'folder-science', name: 'Education.directory', categories: ['Science'], translate: true},
+    {id: 'agw-sound-video', schemaKey: 'folder-sound-video', name: 'AudioVideo.directory', categories: ['AudioVideo', 'Audio', 'Video'], translate: true},
+    {id: 'agw-system-tools', schemaKey: 'folder-system-tools', name: 'System-Tools.directory', categories: ['System', 'Settings'], translate: true},
+    {id: 'agw-universal-access', schemaKey: 'folder-universal-access', name: 'Utility-Accessibility.directory', categories: ['Accessibility'], translate: true},
+    {id: 'agw-wine', schemaKey: 'folder-wine', name: 'Wine', categories: ['Wine', 'X-Wine', 'Wine-Programs-Accessories'], translate: false},
+    {id: 'agw-waydroid', schemaKey: 'folder-waydroid', name: 'waydroid.directory', categories: ['Waydroid', 'X-WayDroid-App'], translate: true}
 ];
 
 class AppFolderManager {
@@ -110,6 +110,7 @@ class AppFolderManager {
             const folderPath = `${APP_FOLDER_SCHEMA_PATH}${config.id}/`;
             const folderSchema = Gio.Settings.new_with_path('org.gnome.desktop.app-folders.folder', folderPath);
             folderSchema.set_string('name', config.name);
+            folderSchema.set_boolean('translate', config.translate);
             folderSchema.set_strv('categories', config.categories);
         }
         
