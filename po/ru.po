@@ -1,0 +1,221 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Nurlan Musayev <nurlancik1@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: App Grid Wizard 6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-06 11:11+0300\n"
+"PO-Revision-Date: 2025-11-06 12:00+0300\n"
+"Last-Translator: Nurlan Musayev <nurlancik1@gmail.com>\n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: extension.js:16 prefs.js:8
+msgid "Accessories"
+msgstr "Стандартные"
+
+#: extension.js:17 prefs.js:9
+msgid "Chrome Apps"
+msgstr "Веб-приложения"
+
+#: extension.js:18 prefs.js:10
+msgid "Games"
+msgstr "Игры"
+
+#: extension.js:19 prefs.js:11
+msgid "Graphics"
+msgstr "Графика"
+
+#: extension.js:20 prefs.js:12
+msgid "Internet"
+msgstr "Интернет"
+
+#: extension.js:21 prefs.js:13
+msgid "Office"
+msgstr "Офис"
+
+#: extension.js:22 prefs.js:14
+msgid "Programming"
+msgstr "Программирование"
+
+#: extension.js:23 prefs.js:15
+msgid "Science"
+msgstr "Образовательные"
+
+#: extension.js:24 prefs.js:16
+msgid "Sound & Video"
+msgstr "Аудио и видео"
+
+#: extension.js:25 prefs.js:17
+msgid "System Tools"
+msgstr "Системные"
+
+#: extension.js:26 prefs.js:18
+msgid "Universal Access"
+msgstr "Специальные возможности"
+
+#: extension.js:27 prefs.js:19
+msgid "Wine"
+msgstr "Wine"
+
+#: extension.js:28 prefs.js:20
+msgid "Waydroid"
+msgstr "Waydroid"
+
+#: extension.js:175
+msgid "Restore Original Layout"
+msgstr "Восстановить исходное расположение"
+
+#: extension.js:185
+msgid "More Settings…"
+msgstr "Дополнительные настройки…"
+
+#: prefs.js:8
+msgid "Utility apps"
+msgstr "Стандартные приложения"
+
+#: prefs.js:9
+msgid "Chrome web applications"
+msgstr "Веб-приложения Chrome"
+
+#: prefs.js:10
+msgid "Gaming applications"
+msgstr "Игровые приложения"
+
+#: prefs.js:11
+msgid "Image and design tools"
+msgstr "Инструменты для работы с изображениями и дизайном"
+
+#: prefs.js:12
+msgid "Network, browsers, and email"
+msgstr "Сеть, браузеры и электронная почта"
+
+#: prefs.js:13
+msgid "Productivity applications"
+msgstr "Приложения для работы и офиса"
+
+#: prefs.js:14
+msgid "Development tools"
+msgstr "Инструменты разработки"
+
+#: prefs.js:15
+msgid "Scientific applications"
+msgstr "Научные приложения"
+
+#: prefs.js:16
+msgid "Audio and video applications"
+msgstr "Аудио и видео приложения"
+
+#: prefs.js:17
+msgid "System and settings"
+msgstr "Система и настройки"
+
+#: prefs.js:18
+msgid "Accessibility tools"
+msgstr "Инструменты доступности"
+
+#: prefs.js:19
+msgid "Windows applications"
+msgstr "Приложения Windows"
+
+#: prefs.js:20
+msgid "Android applications"
+msgstr "Приложения Android"
+
+#: prefs.js:30
+msgid "General"
+msgstr "Общие"
+
+#: prefs.js:37
+msgid "About"
+msgstr "О программе"
+
+#: prefs.js:38
+msgid "App Grid Wizard automatically organizes your applications into folders"
+msgstr "App Grid Wizard автоматически распределяет ваши приложения по папкам"
+
+#: prefs.js:43
+msgid "How to use"
+msgstr "Как использовать"
+
+#: prefs.js:44
+msgid ""
+"Toggle ON creates folders. Toggle OFF keeps folders but stops monitoring. "
+"Use Restore button below to remove folders."
+msgstr ""
+"При включении создаются папки. При выключении папки сохраняются, но наблюдение прекращается. "
+"Используйте кнопку «Восстановить» ниже, чтобы удалить папки."
+
+#: prefs.js:50 prefs.js:63 prefs.js:78
+msgid "Restore"
+msgstr "Восстановить"
+
+#: prefs.js:51
+msgid ""
+"Remove all extension folders and restore original layout. Requires logout to "
+"take effect."
+msgstr ""
+"Удалить все папки, созданные расширением, и восстановить исходное расположение. "
+"Для применения изменений требуется выйти из системы и войти снова."
+
+#: prefs.js:56
+msgid "Restore Original Folders"
+msgstr "Восстановить исходные папки"
+
+#: prefs.js:58
+msgid "A snapshot is available"
+msgstr "Снимок доступен"
+
+#: prefs.js:59
+msgid "No snapshot available yet (enable the extension first)"
+msgstr "Снимок пока недоступен (сначала включите расширение)"
+
+#: prefs.js:71
+msgid "Restore Original Folders?"
+msgstr "Восстановить исходные папки?"
+
+#: prefs.js:72
+msgid ""
+"This will remove all folders created by App Grid Wizard and restore your "
+"original folder setup."
+msgstr ""
+"Это действие удалит все папки, созданные App Grid Wizard, и восстановит вашу "
+"исходную структуру папок."
+
+#: prefs.js:77
+msgid "Cancel"
+msgstr "Отмена"
+
+#: prefs.js:84
+msgid "Restored! Log out and back in to see changes."
+msgstr "Восстановлено! Выйдите и войдите снова, чтобы увидеть изменения."
+
+#: prefs.js:98
+msgid "Folders"
+msgstr "Папки"
+
+#: prefs.js:99
+msgid "Choose which folders to create and manage"
+msgstr "Выберите, какие папки создавать и управлять ими"
+
+#: prefs.js:128
+msgid "Credits"
+msgstr "Благодарности"
+
+#: prefs.js:133
+msgid "App Grid Wizard"
+msgstr "App Grid Wizard"
+
+#: prefs.js:134
+msgid "Made with ❤️ by Mahdi Mirzadeh"
+msgstr "Сделано с ❤️ Махди Мирзадехом"
+
+#: prefs.js:138
+msgid "GitHub"
+msgstr "GitHub"
