@@ -1,0 +1,216 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-06 11:11+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: extension.js:16 prefs.js:8
+msgid "Accessories"
+msgstr ""
+
+#: extension.js:17 prefs.js:9
+msgid "Chrome Apps"
+msgstr ""
+
+#: extension.js:18 prefs.js:10
+msgid "Games"
+msgstr ""
+
+#: extension.js:19 prefs.js:11
+msgid "Graphics"
+msgstr ""
+
+#: extension.js:20 prefs.js:12
+msgid "Internet"
+msgstr ""
+
+#: extension.js:21 prefs.js:13
+msgid "Office"
+msgstr ""
+
+#: extension.js:22 prefs.js:14
+msgid "Programming"
+msgstr ""
+
+#: extension.js:23 prefs.js:15
+msgid "Science"
+msgstr ""
+
+#: extension.js:24 prefs.js:16
+msgid "Sound & Video"
+msgstr ""
+
+#: extension.js:25 prefs.js:17
+msgid "System Tools"
+msgstr ""
+
+#: extension.js:26 prefs.js:18
+msgid "Universal Access"
+msgstr ""
+
+#: extension.js:27 prefs.js:19
+msgid "Wine"
+msgstr ""
+
+#: extension.js:28 prefs.js:20
+msgid "Waydroid"
+msgstr ""
+
+#: extension.js:175
+msgid "Restore Original Layout"
+msgstr ""
+
+#: extension.js:185
+msgid "More Settings…"
+msgstr ""
+
+#: prefs.js:8
+msgid "Utility apps"
+msgstr ""
+
+#: prefs.js:9
+msgid "Chrome web applications"
+msgstr ""
+
+#: prefs.js:10
+msgid "Gaming applications"
+msgstr ""
+
+#: prefs.js:11
+msgid "Image and design tools"
+msgstr ""
+
+#: prefs.js:12
+msgid "Network, browsers, and email"
+msgstr ""
+
+#: prefs.js:13
+msgid "Productivity applications"
+msgstr ""
+
+#: prefs.js:14
+msgid "Development tools"
+msgstr ""
+
+#: prefs.js:15
+msgid "Scientific applications"
+msgstr ""
+
+#: prefs.js:16
+msgid "Audio and video applications"
+msgstr ""
+
+#: prefs.js:17
+msgid "System and settings"
+msgstr ""
+
+#: prefs.js:18
+msgid "Accessibility tools"
+msgstr ""
+
+#: prefs.js:19
+msgid "Windows applications"
+msgstr ""
+
+#: prefs.js:20
+msgid "Android applications"
+msgstr ""
+
+#: prefs.js:30
+msgid "General"
+msgstr ""
+
+#: prefs.js:37
+msgid "About"
+msgstr ""
+
+#: prefs.js:38
+msgid "App Grid Wizard automatically organizes your applications into folders"
+msgstr ""
+
+#: prefs.js:43
+msgid "How to use"
+msgstr ""
+
+#: prefs.js:44
+msgid ""
+"Toggle ON creates folders. Toggle OFF keeps folders but stops monitoring. "
+"Use Restore button below to remove folders."
+msgstr ""
+
+#: prefs.js:50 prefs.js:63 prefs.js:78
+msgid "Restore"
+msgstr ""
+
+#: prefs.js:51
+msgid ""
+"Remove all extension folders and restore original layout. Requires logout to "
+"take effect."
+msgstr ""
+
+#: prefs.js:56
+msgid "Restore Original Folders"
+msgstr ""
+
+#: prefs.js:58
+msgid "A snapshot is available"
+msgstr ""
+
+#: prefs.js:59
+msgid "No snapshot available yet (enable the extension first)"
+msgstr ""
+
+#: prefs.js:71
+msgid "Restore Original Folders?"
+msgstr ""
+
+#: prefs.js:72
+msgid ""
+"This will remove all folders created by App Grid Wizard and restore your "
+"original folder setup."
+msgstr ""
+
+#: prefs.js:77
+msgid "Cancel"
+msgstr ""
+
+#: prefs.js:84
+msgid "Restored! Log out and back in to see changes."
+msgstr ""
+
+#: prefs.js:98
+msgid "Folders"
+msgstr ""
+
+#: prefs.js:99
+msgid "Choose which folders to create and manage"
+msgstr ""
+
+#: prefs.js:128
+msgid "Credits"
+msgstr ""
+
+#: prefs.js:133
+msgid "App Grid Wizard"
+msgstr ""
+
+#: prefs.js:134
+msgid "Made with ❤️ by Mahdi Mirzadeh"
+msgstr ""
+
+#: prefs.js:138
+msgid "GitHub"
+msgstr ""

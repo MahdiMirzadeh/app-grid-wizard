@@ -7,5 +7,6 @@
     "custom": "https://mirzadeh.pro/donate"
   },
   "shell-version": [ "45", "46", "47", "48", "49" ],
-  "settings-schema": "org.gnome.shell.extensions.app-grid-wizard"
+  "settings-schema": "org.gnome.shell.extensions.app-grid-wizard",
+  "gettext-domain": "app-grid-wizard"
 }

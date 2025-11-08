@@ -4,7 +4,7 @@ import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {QuickToggle, QuickMenuToggle, SystemIndicator} from 'resource:///org/gnome/shell/ui/quickSettings.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
@@ -13,19 +13,19 @@ const APP_FOLDER_SCHEMA_PATH = '/org/gnome/desktop/app-folders/folders/';
 const DEBOUNCE_DELAY = 2000;
 
 const FOLDER_CONFIGS = [
-    {id: 'agw-accessories', schemaKey: 'folder-accessories', name: 'Accessories', categories: ['Utility']},
-    {id: 'agw-chrome-apps', schemaKey: 'folder-chrome-apps', name: 'Chrome Apps', categories: ['chrome-apps']},
-    {id: 'agw-games', schemaKey: 'folder-games', name: 'Games', categories: ['Game']},
-    {id: 'agw-graphics', schemaKey: 'folder-graphics', name: 'Graphics', categories: ['Graphics']},
-    {id: 'agw-internet', schemaKey: 'folder-internet', name: 'Internet', categories: ['Network', 'WebBrowser', 'Email']},
-    {id: 'agw-office', schemaKey: 'folder-office', name: 'Office', categories: ['Office']},
-    {id: 'agw-programming', schemaKey: 'folder-programming', name: 'Programming', categories: ['Development']},
-    {id: 'agw-science', schemaKey: 'folder-science', name: 'Science', categories: ['Science']},
-    {id: 'agw-sound-video', schemaKey: 'folder-sound-video', name: 'Sound & Video', categories: ['AudioVideo', 'Audio', 'Video']},
-    {id: 'agw-system-tools', schemaKey: 'folder-system-tools', name: 'System Tools', categories: ['System', 'Settings']},
-    {id: 'agw-universal-access', schemaKey: 'folder-universal-access', name: 'Universal Access', categories: ['Accessibility']},
-    {id: 'agw-wine', schemaKey: 'folder-wine', name: 'Wine', categories: ['Wine', 'X-Wine', 'Wine-Programs-Accessories']},
-    {id: 'agw-waydroid', schemaKey: 'folder-waydroid', name: 'Waydroid', categories: ['Waydroid', 'X-WayDroid-App']}
+    {id: 'agw-accessories', schemaKey: 'folder-accessories', name: () => _('Accessories'), categories: ['Utility']},
+    {id: 'agw-chrome-apps', schemaKey: 'folder-chrome-apps', name: () => _('Chrome Apps'), categories: ['chrome-apps']},
+    {id: 'agw-games', schemaKey: 'folder-games', name: () => _('Games'), categories: ['Game']},
+    {id: 'agw-graphics', schemaKey: 'folder-graphics', name: () => _('Graphics'), categories: ['Graphics']},
+    {id: 'agw-internet', schemaKey: 'folder-internet', name: () => _('Internet'), categories: ['Network', 'WebBrowser', 'Email']},
+    {id: 'agw-office', schemaKey: 'folder-office', name: () => _('Office'), categories: ['Office']},
+    {id: 'agw-programming', schemaKey: 'folder-programming', name: () => _('Programming'), categories: ['Development']},
+    {id: 'agw-science', schemaKey: 'folder-science', name: () => _('Science'), categories: ['Science']},
+    {id: 'agw-sound-video', schemaKey: 'folder-sound-video', name: () => _('Sound & Video'), categories: ['AudioVideo', 'Audio', 'Video']},
+    {id: 'agw-system-tools', schemaKey: 'folder-system-tools', name: () => _('System Tools'), categories: ['System', 'Settings']},
+    {id: 'agw-universal-access', schemaKey: 'folder-universal-access', name: () => _('Universal Access'), categories: ['Accessibility']},
+    {id: 'agw-wine', schemaKey: 'folder-wine', name: () => _('Wine'), categories: ['Wine', 'X-Wine', 'Wine-Programs-Accessories']},
+    {id: 'agw-waydroid', schemaKey: 'folder-waydroid', name: () => _('Waydroid'), categories: ['Waydroid', 'X-WayDroid-App']}
 ];
 
 class AppFolderManager {
@@ -109,7 +109,7 @@ class AppFolderManager {
         for (const config of enabledConfigs) {
             const folderPath = `${APP_FOLDER_SCHEMA_PATH}${config.id}/`;
             const folderSchema = Gio.Settings.new_with_path('org.gnome.desktop.app-folders.folder', folderPath);
-            folderSchema.set_string('name', config.name);
+            folderSchema.set_string('name', config.name());
             folderSchema.set_strv('categories', config.categories);
         }
         
@@ -172,7 +172,7 @@ class WizardToggle extends QuickMenuToggle {
         }
         
         // Menu items
-        const restoreItem = new PopupMenu.PopupMenuItem('Restore Original Layout');
+        const restoreItem = new PopupMenu.PopupMenuItem(_('Restore Original Layout'));
         restoreItem.connect('activate', () => {
             this._folderManager.restoreSnapshot();
             this._extensionSettings.set_boolean('snapshot-taken', false);
@@ -182,7 +182,7 @@ class WizardToggle extends QuickMenuToggle {
         });
         this.menu.addMenuItem(restoreItem);
 
-        const prefsItem = new PopupMenu.PopupMenuItem('More Settings…');
+        const prefsItem = new PopupMenu.PopupMenuItem(_('More Settings…'));
         prefsItem.connect('activate', () => {
             try {
                 Main.extensionManager.openExtensionPrefs(this._uuid, '', null);
@@ -282,6 +282,8 @@ class WizardIndicator extends SystemIndicator {
 
 export default class WizardManagerExtension extends Extension {
     enable() {
+        this.initTranslations("app-grid-wizard");
+
         this._settings = this.getSettings();
         this._indicator = new WizardIndicator(this._settings, this.metadata.uuid);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);

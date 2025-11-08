@@ -2,65 +2,65 @@ import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 
-import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 const FOLDER_CONFIGS = [
-    {schemaKey: 'folder-accessories', title: 'Accessories', subtitle: 'Utility apps'},
-    {schemaKey: 'folder-chrome-apps', title: 'Chrome Apps', subtitle: 'Chrome web applications'},
-    {schemaKey: 'folder-games', title: 'Games', subtitle: 'Gaming applications'},
-    {schemaKey: 'folder-graphics', title: 'Graphics', subtitle: 'Image and design tools'},
-    {schemaKey: 'folder-internet', title: 'Internet', subtitle: 'Network, browsers, and email'},
-    {schemaKey: 'folder-office', title: 'Office', subtitle: 'Productivity applications'},
-    {schemaKey: 'folder-programming', title: 'Programming', subtitle: 'Development tools'},
-    {schemaKey: 'folder-science', title: 'Science', subtitle: 'Scientific applications'},
-    {schemaKey: 'folder-sound-video', title: 'Sound &amp; Video', subtitle: 'Audio and video applications'},
-    {schemaKey: 'folder-system-tools', title: 'System Tools', subtitle: 'System and settings'},
-    {schemaKey: 'folder-universal-access', title: 'Universal Access', subtitle: 'Accessibility tools'},
-    {schemaKey: 'folder-wine', title: 'Wine', subtitle: 'Windows applications'},
-    {schemaKey: 'folder-waydroid', title: 'Waydroid', subtitle: 'Android applications'}
+    {schemaKey: 'folder-accessories', title: () => _('Accessories'), subtitle: () => _('Utility apps')},
+    {schemaKey: 'folder-chrome-apps', title: () => _('Chrome Apps'), subtitle: () => _('Chrome web applications')},
+    {schemaKey: 'folder-games', title: () => _('Games'), subtitle: () => _('Gaming applications')},
+    {schemaKey: 'folder-graphics', title: () => _('Graphics'), subtitle: () => _('Image and design tools')},
+    {schemaKey: 'folder-internet', title: () => _('Internet'), subtitle: () => _('Network, browsers, and email')},
+    {schemaKey: 'folder-office', title: () => _('Office'), subtitle: () => _('Productivity applications')},
+    {schemaKey: 'folder-programming', title: () => _('Programming'), subtitle: () => _('Development tools')},
+    {schemaKey: 'folder-science', title: () => _('Science'), subtitle: () => _('Scientific applications')},
+    {schemaKey: 'folder-sound-video', title: () => _('Sound & Video'), subtitle: () => _('Audio and video applications')},
+    {schemaKey: 'folder-system-tools', title: () => _('System Tools'), subtitle: () => _('System and settings')},
+    {schemaKey: 'folder-universal-access', title: () => _('Universal Access'), subtitle: () => _('Accessibility tools')},
+    {schemaKey: 'folder-wine', title: () => _('Wine'), subtitle: () => _('Windows applications')},
+    {schemaKey: 'folder-waydroid', title: () => _('Waydroid'), subtitle: () => _('Android applications')}
 ];
 
 export default class WizardPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
-        
+        this.initTranslations();
+
         // Main page
         const page = new Adw.PreferencesPage({
-            title: 'General',
+            title: _('General'),
             icon_name: 'dialog-information-symbolic',
         });
         window.add(page);
 
         // Info group
         const infoGroup = new Adw.PreferencesGroup({
-            title: 'About',
-            description: 'App Grid Wizard automatically organizes your applications into folders',
+            title: _('About'),
+            description: _('App Grid Wizard automatically organizes your applications into folders'),
         });
         page.add(infoGroup);
 
         const infoRow = new Adw.ActionRow({
-            title: 'How to use',
-            subtitle: 'Toggle ON creates folders. Toggle OFF keeps folders but stops monitoring. Use Restore button below to remove folders.',
+            title: _('How to use'),
+            subtitle: _('Toggle ON creates folders. Toggle OFF keeps folders but stops monitoring. Use Restore button below to remove folders.'),
         });
         infoGroup.add(infoRow);
 
-
         // Restore group
         const restoreGroup = new Adw.PreferencesGroup({
-            title: 'Restore',
-            description: 'Remove all extension folders and restore original layout. Requires logout to take effect.',
+            title: _('Restore'),
+            description: _('Remove all extension folders and restore original layout. Requires logout to take effect.'),
         });
         page.add(restoreGroup);
 
         const restoreRow = new Adw.ActionRow({
-            title: 'Restore Original Folders',
+            title: _('Restore Original Folders'),
             subtitle: settings.get_boolean('snapshot-taken') 
-                ? 'A snapshot is available' 
-                : 'No snapshot available yet (enable the extension first)',
+                ? _('A snapshot is available') 
+                : _('No snapshot available yet (enable the extension first)'),
         });
         
         const restoreButton = new Gtk.Button({
-            label: 'Restore',
+            label: _('Restore'),
             valign: Gtk.Align.CENTER,
             sensitive: settings.get_boolean('snapshot-taken'),
             css_classes: ['destructive-action'],
@@ -68,20 +68,20 @@ export default class WizardPreferences extends ExtensionPreferences {
         
         restoreButton.connect('clicked', () => {
             const dialog = new Adw.MessageDialog({
-                heading: 'Restore Original Folders?',
-                body: 'This will remove all folders created by App Grid Wizard and restore your original folder setup.',
+                heading: _('Restore Original Folders?'),
+                body: _('This will remove all folders created by App Grid Wizard and restore your original folder setup.'),
                 transient_for: window,
                 modal: true,
             });
             
-            dialog.add_response('cancel', 'Cancel');
-            dialog.add_response('restore', 'Restore');
+            dialog.add_response('cancel', _('Cancel'));
+            dialog.add_response('restore', _('Restore'));
             dialog.set_response_appearance('restore', Adw.ResponseAppearance.DESTRUCTIVE);
             
             dialog.connect('response', (dialog, response) => {
                 if (response === 'restore') {
                     this._restoreSnapshot(settings);
-                    restoreRow.subtitle = 'Restored! Log out and back in to see changes.';
+                    restoreRow.subtitle = _('Restored! Log out and back in to see changes.');
                     settings.set_boolean('snapshot-taken', false);
                     restoreButton.sensitive = false;
                 }
@@ -95,15 +95,15 @@ export default class WizardPreferences extends ExtensionPreferences {
 
         // Folders group
         const foldersGroup = new Adw.PreferencesGroup({
-            title: 'Folders',
-            description: 'Choose which folders to create and manage',
+            title: _('Folders'),
+            description: _('Choose which folders to create and manage'),
         });
         page.add(foldersGroup);
 
         for (const config of FOLDER_CONFIGS) {
             const row = new Adw.ActionRow({
-                title: config.title,
-                subtitle: config.subtitle,
+                title: config.title(),
+                subtitle: config.subtitle(),
             });
 
             const toggle = new Gtk.Switch({
@@ -125,17 +125,17 @@ export default class WizardPreferences extends ExtensionPreferences {
 
         // Credits group
         const creditsGroup = new Adw.PreferencesGroup({
-            title: 'Credits',
+            title: _('Credits'),
         });
         page.add(creditsGroup);
 
         const creditRow = new Adw.ActionRow({
-            title: 'App Grid Wizard',
-            subtitle: 'Made with ❤️ by Mahdi Mirzadeh',
+            title: _('App Grid Wizard'),
+            subtitle: _('Made with ❤️ by Mahdi Mirzadeh'),
         });
         
         const linkButton = new Gtk.Button({
-            label: 'GitHub',
+            label: _('GitHub'),
             valign: Gtk.Align.CENTER,
         });
         
