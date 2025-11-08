@@ -1,6 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Russian translation for App Grid Wizard.
+# Copyright (c) 2025 Mahdi Mirzadeh <mahdi@mirzadeh.pro>
+# This file is distributed under the MIT license.
 # Nurlan Musayev <nurlancik1@gmail.com>, 2025.
 #
 msgid ""
