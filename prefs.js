@@ -140,7 +140,10 @@ export default class WizardPreferences extends ExtensionPreferences {
         });
         
         linkButton.connect('clicked', () => {
-            Gtk.show_uri(window, 'https://github.com/MahdiMirzadeh/app-grid-wizard', Gtk.get_current_event_time());
+            Gio.AppInfo.launch_default_for_uri(
+                'https://github.com/MahdiMirzadeh/app-grid-wizard',
+                null
+            );
         });
         
         creditRow.add_suffix(linkButton);
