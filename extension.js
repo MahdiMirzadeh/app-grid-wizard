@@ -282,8 +282,6 @@ class WizardIndicator extends SystemIndicator {
 
 export default class WizardManagerExtension extends Extension {
     enable() {
-        this.initTranslations("app-grid-wizard");
-
         this._settings = this.getSettings();
         this._indicator = new WizardIndicator(this._settings, this.metadata.uuid);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);

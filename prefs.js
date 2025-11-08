@@ -23,7 +23,6 @@ const FOLDER_CONFIGS = [
 export default class WizardPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
-        this.initTranslations();
 
         // Main page
         const page = new Adw.PreferencesPage({
