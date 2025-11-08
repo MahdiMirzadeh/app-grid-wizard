@@ -31,13 +31,18 @@ A GNOME Shell extension that auto-organizes your app grid into sensible folders 
 git clone https://github.com/MahdiMirzadeh/app-grid-wizard.git
 cd app-grid-wizard
 
-# 2) Build and install
-zip -r app-grid-wizard.zip extension.js prefs.js metadata.json schemas/
-gnome-extensions install app-grid-wizard.zip --force
+# 2) Package and install (with translations)
+# Package with translations from po/ using GNOME's recommended tool
+# Run from the extension root directory
+
+gnome-extensions pack --podir=po
+# This produces: app-grid-wizard@mirzadeh.pro.shell-extension.zip
+
+gnome-extensions install app-grid-wizard@mirzadeh.pro.shell-extension.zip --force
 
 # 3) Enable
 gnome-extensions enable app-grid-wizard@mirzadeh.pro
-# Then log out and then log in
+# Then log out and back in
 ```
 
 ---
