@@ -45,6 +45,23 @@ gnome-extensions enable app-grid-wizard@mirzadeh.pro
 # Then log out and back in
 ```
 
+## Translations (i18n)
+
+- Included languages: English, Russian (ru), Persian/Farsi (fa)
+- Packaging above already bundles translations via `--podir=po` and `gettext-domain` in `metadata.json`
+
+Add or update a translation:
+1. Edit or add a PO file in `po/`, e.g. `po/fa.po`
+2. Keep placeholders and punctuation intact (e.g. ellipsis …)
+3. Rebuild: `gnome-extensions pack --podir=po`
+4. Reinstall: `gnome-extensions install app-grid-wizard@mirzadeh.pro.shell-extension.zip --force`
+
+Testing translations:
+- Change your system language in **GNOME Settings → Region & Language**, add Persian (or your target language), and set it as default.
+- Log out and back in.
+- Both preferences and Shell UI (Quick Settings, menus) will show the translated strings.
+- Note: Using `LC_ALL` on the command line does **not** work for GNOME extensions because the Extensions app and GNOME Shell are D-Bus activated and don't inherit shell environment variables.
+
 ---
 
 ## Usage
@@ -157,6 +174,12 @@ journalctl /usr/bin/gnome-shell -f | grep "App-Grid-Wizard"
 
 - First page shows a single stray app? The extension now sets `app-picker-layout` to `[]` after changes; log out/in once if it persists.
 - Want your original layout back? Use Restore (Quick Settings or Preferences), then log out/in.
+- Translations not showing?
+  - Rebuild with `gnome-extensions pack --podir=po` and reinstall.
+  - Ensure `metadata.json` has `"gettext-domain": "app-grid-wizard"`.
+  - Ensure the locale exists: `locale -a | grep -i fa_IR` (if missing, generate `fa_IR.UTF-8`).
+  - Preferences: fully quit the Extensions app before relaunching with `LC_ALL`/`LANG`.
+  - Shell UI: on Wayland log out/in; on Xorg use Alt+F2 → `r`.
 
 ---
 
