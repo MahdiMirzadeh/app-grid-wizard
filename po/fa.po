@@ -1,0 +1,221 @@
+# Persian translation for App Grid Wizard.
+# Copyright (C) 2025 Mahdi Mirzadeh <mahdi@mirzadeh.pro>
+# This file is distributed under the MIT license.
+# Mahdi Mirzadeh <mahdi@mirzadeh.pro>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: App Grid Wizard 6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-06 11:11+0300\n"
+"PO-Revision-Date: 2025-11-08 08:22+0000\n"
+"Last-Translator: Mahdi Mirzadeh <mahdi@mirzadeh.pro>\n"
+"Language-Team: Persian\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: extension.js:16 prefs.js:8
+msgid "Accessories"
+msgstr "ابزارها"
+
+#: extension.js:17 prefs.js:9
+msgid "Chrome Apps"
+msgstr "برنامه‌های کروم"
+
+#: extension.js:18 prefs.js:10
+msgid "Games"
+msgstr "بازی"
+
+#: extension.js:19 prefs.js:11
+msgid "Graphics"
+msgstr "گرافیک و تصویر"
+
+#: extension.js:20 prefs.js:12
+msgid "Internet"
+msgstr "اینترنت"
+
+#: extension.js:21 prefs.js:13
+msgid "Office"
+msgstr "اداری"
+
+#: extension.js:22 prefs.js:14
+msgid "Programming"
+msgstr "برنامه‌نویسی"
+
+#: extension.js:23 prefs.js:15
+msgid "Science"
+msgstr "علوم"
+
+#: extension.js:24 prefs.js:16
+msgid "Sound & Video"
+msgstr "صوتی و تصویری"
+
+#: extension.js:25 prefs.js:17
+msgid "System Tools"
+msgstr "ابزار سیستم"
+
+#: extension.js:26 prefs.js:18
+msgid "Universal Access"
+msgstr "دسترسی آسان"
+
+#: extension.js:27 prefs.js:19
+msgid "Wine"
+msgstr "Wine"
+
+#: extension.js:28 prefs.js:20
+msgid "Waydroid"
+msgstr "Waydroid"
+
+#: extension.js:175
+msgid "Restore Original Layout"
+msgstr "بازگردانی چیدمان اولیه"
+
+#: extension.js:185
+msgid "More Settings…"
+msgstr "تنظیمات بیشتر…"
+
+#: prefs.js:8
+msgid "Utility apps"
+msgstr "ابزارهای کاربردی"
+
+#: prefs.js:9
+msgid "Chrome web applications"
+msgstr "وب اپلیکیشن ها"
+
+#: prefs.js:10
+msgid "Gaming applications"
+msgstr "بازی‌ها"
+
+#: prefs.js:11
+msgid "Image and design tools"
+msgstr "ابزارهای طراحی و تصویر"
+
+#: prefs.js:12
+msgid "Network, browsers, and email"
+msgstr "شبکه، مرورگر و ایمیل"
+
+#: prefs.js:13
+msgid "Productivity applications"
+msgstr "برنامه‌های کاری و بهره‌وری"
+
+#: prefs.js:14
+msgid "Development tools"
+msgstr "ابزارهای توسعه"
+
+#: prefs.js:15
+msgid "Scientific applications"
+msgstr "برنامه‌های علمی"
+
+#: prefs.js:16
+msgid "Audio and video applications"
+msgstr "برنامه‌های صوتی و تصویری"
+
+#: prefs.js:17
+msgid "System and settings"
+msgstr "سیستم و تنظیمات"
+
+#: prefs.js:18
+msgid "Accessibility tools"
+msgstr "ابزار دسترسی آسان"
+
+#: prefs.js:19
+msgid "Windows applications"
+msgstr "برنامه‌های ویندوز"
+
+#: prefs.js:20
+msgid "Android applications"
+msgstr "برنامه‌های اندروید"
+
+#: prefs.js:30
+msgid "General"
+msgstr "عمومی"
+
+#: prefs.js:37
+msgid "About"
+msgstr "درباره"
+
+#: prefs.js:38
+msgid "App Grid Wizard automatically organizes your applications into folders"
+msgstr "افزونه  App Grid Wizard به‌طور خودکار برنامه‌های شما را در پوشه‌ها دسته‌بندی می‌کند"
+
+#: prefs.js:43
+msgid "How to use"
+msgstr "نحوه استفاده"
+
+#: prefs.js:44
+msgid ""
+"Toggle ON creates folders. Toggle OFF keeps folders but stops monitoring. "
+"Use Restore button below to remove folders."
+msgstr ""
+"فعال‌سازی این تنظیمات پوشه‌ها را ایجاد می‌کند. غیرفعال‌سازی پوشه‌ها را نگه می‌دارد اما نظارت را متوقف می‌کند. "
+"برای حذف پوشه‌ها از دکمه بازگردانی استفاده کنید."
+
+#: prefs.js:50 prefs.js:63 prefs.js:78
+msgid "Restore"
+msgstr "بازگردانی"
+
+#: prefs.js:51
+msgid ""
+"Remove all extension folders and restore original layout. Requires logout to "
+"take effect."
+msgstr ""
+"تمام پوشه‌های ایجاد شده را حذف و چیدمان اولیه را بازگردانی می‌کند. برای اعمال تغییرات باید از سیستم "
+"خارج شوید."
+
+#: prefs.js:56
+msgid "Restore Original Folders"
+msgstr "بازگردانی پوشه‌های اولیه"
+
+#: prefs.js:58
+msgid "A snapshot is available"
+msgstr "نسخه پشتیبان موجود است"
+
+#: prefs.js:59
+msgid "No snapshot available yet (enable the extension first)"
+msgstr "هنوز نسخه پشتیبانی وجود ندارد (ابتدا افزونه را فعال کنید)"
+
+#: prefs.js:71
+msgid "Restore Original Folders?"
+msgstr "پوشه‌های اولیه بازگردانی شود؟"
+
+#: prefs.js:72
+msgid ""
+"This will remove all folders created by App Grid Wizard and restore your "
+"original folder setup."
+msgstr ""
+"این عملیات تمام پوشه‌های ساخته شده توسط جادوگر سازماندهی برنامه‌ها را حذف کرده و چیدمان اولیه شما را "
+"بازمی‌گرداند."
+
+#: prefs.js:77
+msgid "Cancel"
+msgstr "انصراف"
+
+#: prefs.js:84
+msgid "Restored! Log out and back in to see changes."
+msgstr "بازگردانی انجام شد! برای مشاهده تغییرات از سیستم خارج و مجدداً وارد شوید."
+
+#: prefs.js:98
+msgid "Folders"
+msgstr "پوشه‌ها"
+
+#: prefs.js:99
+msgid "Choose which folders to create and manage"
+msgstr "انتخاب کنید کدام پوشه‌ها ایجاد و مدیریت شوند"
+
+#: prefs.js:128
+msgid "Credits"
+msgstr "سازندگان"
+
+#: prefs.js:133
+msgid "App Grid Wizard"
+msgstr "App Grid Wizard"
+
+#: prefs.js:134
+msgid "Made with ❤️ by Mahdi Mirzadeh"
+msgstr "ساخته شده با ❤️ توسط مهدی میرزاده"
+
+#: prefs.js:138
+msgid "GitHub"
+msgstr "گیتهاب"
