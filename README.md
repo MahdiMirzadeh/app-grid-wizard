@@ -14,7 +14,7 @@ A GNOME Shell extension that auto-organizes your app grid into sensible folders 
 - Quick Settings integration: toggle + menu with Restore and Settings
 - Auto-compaction: resets `app-picker-layout` so GNOME auto-paginates compactly
 - Watches app changes: re-applies folder config when apps are installed/removed (debounced)
-- GNOME 45–49
+- GNOME 45–50
 
 ---
 
