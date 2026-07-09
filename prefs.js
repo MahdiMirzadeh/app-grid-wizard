@@ -40,9 +40,41 @@ export default class WizardPreferences extends ExtensionPreferences {
 
         const infoRow = new Adw.ActionRow({
             title: _('How to use'),
-            subtitle: _('Use the App Grid Wizard toggle in GNOME Quick Settings to create folders. Toggle OFF there keeps folders but stops monitoring. Use Restore below to remove folders.'),
+            subtitle: _('Turn App Grid Wizard ON from Preferences or Quick Settings to create folders. Turning it OFF stops monitoring but keeps existing folders. Use Restore below to remove them.'),
         });
         infoGroup.add(infoRow);
+
+        const behaviorGroup = new Adw.PreferencesGroup({
+            title: _('Behavior'),
+            description: _('Choose how App Grid Wizard is controlled'),
+        });
+        page.add(behaviorGroup);
+
+        const enabledRow = new Adw.ActionRow({
+            title: _('Enabled'),
+            subtitle: _('Create folders and keep them updated automatically'),
+        });
+        const enabledSwitch = new Gtk.Switch({
+            active: settings.get_boolean('enabled'),
+            valign: Gtk.Align.CENTER,
+        });
+        settings.bind('enabled', enabledSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
+        enabledRow.add_suffix(enabledSwitch);
+        enabledRow.activatable_widget = enabledSwitch;
+        behaviorGroup.add(enabledRow);
+
+        const quickSettingsRow = new Adw.ActionRow({
+            title: _('Show in Quick Settings'),
+            subtitle: _('Keep the App Grid Wizard toggle visible in GNOME Quick Settings'),
+        });
+        const quickSettingsSwitch = new Gtk.Switch({
+            active: settings.get_boolean('show-quick-settings'),
+            valign: Gtk.Align.CENTER,
+        });
+        settings.bind('show-quick-settings', quickSettingsSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
+        quickSettingsRow.add_suffix(quickSettingsSwitch);
+        quickSettingsRow.activatable_widget = quickSettingsSwitch;
+        behaviorGroup.add(quickSettingsRow);
 
         // Restore group
         const restoreGroup = new Adw.PreferencesGroup({
@@ -53,9 +85,7 @@ export default class WizardPreferences extends ExtensionPreferences {
 
         const restoreRow = new Adw.ActionRow({
             title: _('Restore Original Folders'),
-            subtitle: settings.get_boolean('snapshot-taken') 
-                ? _('A snapshot is available') 
-                : _('No snapshot available yet (turn on App Grid Wizard in Quick Settings first)'),
+            subtitle: '',
         });
         
         const restoreButton = new Gtk.Button({
@@ -64,6 +94,16 @@ export default class WizardPreferences extends ExtensionPreferences {
             sensitive: settings.get_boolean('snapshot-taken'),
             css_classes: ['destructive-action'],
         });
+
+        const syncRestoreState = () => {
+            const hasSnapshot = settings.get_boolean('snapshot-taken');
+            restoreRow.subtitle = hasSnapshot
+                ? _('A snapshot is available')
+                : _('No snapshot available yet (turn on App Grid Wizard first)');
+            restoreButton.sensitive = hasSnapshot;
+        };
+        syncRestoreState();
+        settings.connect('changed::snapshot-taken', syncRestoreState);
         
         restoreButton.connect('clicked', () => {
             const dialog = new Adw.MessageDialog({

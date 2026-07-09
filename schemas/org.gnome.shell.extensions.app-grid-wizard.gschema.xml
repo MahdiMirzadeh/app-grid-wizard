@@ -14,6 +14,12 @@
       <description>Tracks whether the user has already been told to use the Quick Settings toggle</description>
     </key>
 
+    <key name="show-quick-settings" type="b">
+      <default>true</default>
+      <summary>Show the Quick Settings toggle</summary>
+      <description>Whether App Grid Wizard should appear in GNOME Quick Settings</description>
+    </key>
+
     <key name="original-folder-children" type="as">
       <default>[]</default>
       <summary>Original folder-children snapshot</summary>
