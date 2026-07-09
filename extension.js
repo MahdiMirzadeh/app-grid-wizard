@@ -52,6 +52,14 @@ class AppFolderManager {
         this._sources.clear();
     }
 
+    destroy() {
+        this.cancelSources();
+        this._folderSettings = null;
+        this._extensionSettings = null;
+        this._shellSettings = null;
+        this._sources = null;
+    }
+
     resetLayout() {
         this._trackSource(GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
             const empty = new GLib.Variant('aa{sv}', []);
@@ -229,7 +237,9 @@ class WizardController {
         this._enabledChangedId = null;
 
         this._folderManager.resetLayout();
-        this._folderManager.cancelSources();
+        this._folderManager.destroy();
+        this._folderManager = null;
+        this._extensionSettings = null;
     }
 
     _syncEnabledState() {
