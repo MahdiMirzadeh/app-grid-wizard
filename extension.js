@@ -285,6 +285,7 @@ export default class WizardManagerExtension extends Extension {
         this._settings = this.getSettings();
         this._indicator = new WizardIndicator(this._settings, this.metadata.uuid);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);
+        this._maybeShowQuickSettingsHint();
         console.debug('App-Grid-Wizard: Enabled');
     }
 
@@ -295,5 +296,19 @@ export default class WizardManagerExtension extends Extension {
         }
         this._settings = null;
         console.debug('App-Grid-Wizard: Disabled');
+    }
+
+    _maybeShowQuickSettingsHint() {
+        if (this._settings.get_boolean('enabled'))
+            return;
+
+        if (this._settings.get_boolean('quick-settings-hint-shown'))
+            return;
+
+        Main.notify(
+            _('App Grid Wizard'),
+            _('Open Quick Settings and turn on App Grid Wizard to create folders.')
+        );
+        this._settings.set_boolean('quick-settings-hint-shown', true);
     }
 }

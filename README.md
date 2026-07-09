@@ -66,7 +66,8 @@ Testing translations:
 
 ## Usage
 
-- Toggle ON in Quick Settings → folders are created and layout is compacted.
+- After installing, enable the extension in the Extensions app to add **App Grid Wizard** to GNOME **Quick Settings**.
+- Open Quick Settings and toggle **App Grid Wizard** ON to create folders and compact the layout.
 - Toggle OFF → extension stops monitoring (folders remain).
 - Quick Settings ▸ Restore Original Layout → restores snapshot (folders + layout) and turns the extension OFF.
 - Preferences ▸ per-folder toggles + Restore button (also turns the extension OFF).

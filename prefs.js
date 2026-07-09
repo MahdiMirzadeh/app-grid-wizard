@@ -40,7 +40,7 @@ export default class WizardPreferences extends ExtensionPreferences {
 
         const infoRow = new Adw.ActionRow({
             title: _('How to use'),
-            subtitle: _('Toggle ON creates folders. Toggle OFF keeps folders but stops monitoring. Use Restore button below to remove folders.'),
+            subtitle: _('Use the App Grid Wizard toggle in GNOME Quick Settings to create folders. Toggle OFF there keeps folders but stops monitoring. Use Restore below to remove folders.'),
         });
         infoGroup.add(infoRow);
 
@@ -55,7 +55,7 @@ export default class WizardPreferences extends ExtensionPreferences {
             title: _('Restore Original Folders'),
             subtitle: settings.get_boolean('snapshot-taken') 
                 ? _('A snapshot is available') 
-                : _('No snapshot available yet (enable the extension first)'),
+                : _('No snapshot available yet (turn on App Grid Wizard in Quick Settings first)'),
         });
         
         const restoreButton = new Gtk.Button({

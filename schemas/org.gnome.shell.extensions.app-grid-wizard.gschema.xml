@@ -8,6 +8,12 @@
       <description>Whether the extension should automatically organize apps into folders</description>
     </key>
 
+    <key name="quick-settings-hint-shown" type="b">
+      <default>false</default>
+      <summary>Whether the Quick Settings onboarding hint was shown</summary>
+      <description>Tracks whether the user has already been told to use the Quick Settings toggle</description>
+    </key>
+
     <key name="original-folder-children" type="as">
       <default>[]</default>
       <summary>Original folder-children snapshot</summary>
