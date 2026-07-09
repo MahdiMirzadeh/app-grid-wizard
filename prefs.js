@@ -1,6 +1,7 @@
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -191,46 +192,23 @@ export default class WizardPreferences extends ExtensionPreferences {
 
     _restoreSnapshot(settings) {
         const APP_FOLDER_SCHEMA_ID = 'org.gnome.desktop.app-folders';
-        const APP_FOLDER_SCHEMA_PATH = '/org/gnome/desktop/app-folders/folders/';
-        
-        const FOLDER_IDS = [
-            'agw-accessories', 'agw-chrome-apps', 'agw-games', 'agw-graphics',
-            'agw-internet', 'agw-office', 'agw-programming', 'agw-science',
-            'agw-sound-video', 'agw-system-tools', 'agw-universal-access',
-            'agw-wine', 'agw-waydroid'
-        ];
-        
+        const shellSettings = new Gio.Settings({schema_id: 'org.gnome.shell'});
+
         if (settings.get_boolean('snapshot-taken')) {
             const folderSettings = new Gio.Settings({schema_id: APP_FOLDER_SCHEMA_ID});
             const original = settings.get_strv('original-folder-children');
+            const originalLayout = settings.get_value('original-app-layout');
             
             // Restore original folders
             folderSettings.set_strv('folder-children', original);
 
-            // Restore original layout if we have one
-            try {
-                const originalLayout = settings.get_value('original-app-layout');
-                if (originalLayout && originalLayout.n_children && originalLayout.n_children() > 0) {
-                    const shellSettings = new Gio.Settings({schema_id: 'org.gnome.shell'});
-                    shellSettings.set_value('app-picker-layout', originalLayout);
-                } else {
-                    const shellSettings = new Gio.Settings({schema_id: 'org.gnome.shell'});
-                    shellSettings.set_value('app-picker-layout', new (imports.gi.GLib).Variant('aa{sv}', []));
-                }
-            } catch (e) {
-                console.error('App-Grid-Wizard: Failed to restore app layout from snapshot', e);
-            }
+            if (originalLayout.n_children() > 0)
+                shellSettings.set_value('app-picker-layout', originalLayout);
+            else
+                shellSettings.set_value('app-picker-layout', new GLib.Variant('aa{sv}', []));
 
             settings.set_boolean('enabled', false);
             settings.set_boolean('snapshot-taken', false);
-
-            try {
-                const { Gio: GioNS } = imports.gi;
-                const app = GioNS.Application.get_default();
-                // Best-effort hint; Extensions app will reflect the disabled state already via GSettings
-            } catch (e) {
-                console.error('App-Grid-Wizard: Failed to notify app after disabling', e);
-            }
         }
     }
 }

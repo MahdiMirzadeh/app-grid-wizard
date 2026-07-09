@@ -65,12 +65,8 @@ class AppFolderManager {
         if (!this._extensionSettings.get_boolean('snapshot-taken')) {
             const current = this._folderSettings.get_strv('folder-children');
             this._extensionSettings.set_strv('original-folder-children', current);
-            try {
-                const layout = this._shellSettings.get_value('app-picker-layout');
-                this._extensionSettings.set_value('original-app-layout', layout);
-            } catch (e) {
-                console.error('App-Grid-Wizard: Failed to snapshot app-picker-layout', e);
-            }
+            const layout = this._shellSettings.get_value('app-picker-layout');
+            this._extensionSettings.set_value('original-app-layout', layout);
             this._extensionSettings.set_boolean('snapshot-taken', true);
             console.debug('App-Grid-Wizard: Snapshot saved');
         }
@@ -86,15 +82,10 @@ class AppFolderManager {
         this._folderSettings.set_strv('folder-children', original);
         // Apply original layout after folders are present
         this._trackSource(GLib.timeout_add(GLib.PRIORITY_LOW, 200, () => {
-            try {
-                if (originalLayout && originalLayout.n_children && originalLayout.n_children() > 0)
-                    this._shellSettings.set_value('app-picker-layout', originalLayout);
-                else
-                    this.resetLayout();
-            } catch (e) {
-                console.error('App-Grid-Wizard: Failed to apply original app layout; falling back to auto layout', e);
+            if (originalLayout.n_children() > 0)
+                this._shellSettings.set_value('app-picker-layout', originalLayout);
+            else
                 this.resetLayout();
-            }
             console.debug('App-Grid-Wizard: Snapshot restored');
             return GLib.SOURCE_REMOVE;
         }));
@@ -134,8 +125,8 @@ class AppFolderManager {
         const appIds = [];
 
         for (const app of appSystem.get_installed()) {
-            const appId = this._getDesktopAppId(app);
-            const appInfo = this._getDesktopAppInfo(app);
+            const appId = app.get_id();
+            const appInfo = app.get_app_info();
 
             if (!appId || !appInfo)
                 continue;
@@ -149,28 +140,6 @@ class AppFolderManager {
         appIds.sort((a, b) => a.localeCompare(b));
         console.debug(`App-Grid-Wizard: Detected ${appIds.length} Chrome app launcher(s)`);
         return appIds;
-    }
-
-    _getDesktopAppId(app) {
-        if (app && typeof app.get_id === 'function')
-            return app.get_id();
-
-        return null;
-    }
-
-    _getDesktopAppInfo(app) {
-        if (!app)
-            return null;
-
-        if (typeof app.get_app_info === 'function')
-            return app.get_app_info();
-
-        if (typeof app.get_commandline === 'function' ||
-            typeof app.get_filename === 'function' ||
-            typeof app.get_categories === 'function')
-            return app;
-
-        return null;
     }
 
     _isChromeAppLauncher(appId, appInfo) {
@@ -190,36 +159,15 @@ class AppFolderManager {
     }
 
     _getDesktopAppCategories(appInfo) {
-        try {
-            if (typeof appInfo.get_categories === 'function')
-                return (appInfo.get_categories() || '').toLowerCase();
-        } catch (e) {
-            console.debug('App-Grid-Wizard: Failed to read app categories', e);
-        }
-
-        return '';
+        return (appInfo.get_categories() ?? '').toLowerCase();
     }
 
     _getDesktopAppExec(appInfo) {
-        try {
-            if (typeof appInfo.get_commandline === 'function')
-                return (appInfo.get_commandline() || '').toLowerCase();
-        } catch (e) {
-            console.debug('App-Grid-Wizard: Failed to read app command line', e);
-        }
-
-        return '';
+        return (appInfo.get_commandline() ?? '').toLowerCase();
     }
 
     _getDesktopAppFilename(appInfo) {
-        try {
-            if (typeof appInfo.get_filename === 'function')
-                return (appInfo.get_filename() || '').toLowerCase();
-        } catch (e) {
-            console.debug('App-Grid-Wizard: Failed to read app filename', e);
-        }
-
-        return '';
+        return (appInfo.get_filename() ?? '').toLowerCase();
     }
 
     removeFolders() {
@@ -335,7 +283,7 @@ class WizardController {
 
 const WizardToggle = GObject.registerClass(
 class WizardToggle extends QuickMenuToggle {
-    _init(controller, uuid) {
+    _init(controller, openPreferences) {
         super._init({
             title: 'App Grid Wizard',
             iconName: 'view-grid-symbolic',
@@ -344,7 +292,7 @@ class WizardToggle extends QuickMenuToggle {
 
         this._controller = controller;
         this._extensionSettings = controller.settings;
-        this._uuid = uuid;
+        this._openPreferences = openPreferences;
 
         this.checked = this._controller.enabled;
         this.connect('clicked', this._onClicked.bind(this));
@@ -364,11 +312,7 @@ class WizardToggle extends QuickMenuToggle {
 
         const prefsItem = new PopupMenu.PopupMenuItem(_('More Settings…'));
         prefsItem.connect('activate', () => {
-            try {
-                Main.extensionManager.openExtensionPrefs(this._uuid, '', null);
-            } catch (e) {
-                console.error('App-Grid-Wizard: Failed to open preferences', e);
-            }
+            this._openPreferences();
         });
         this.menu.addMenuItem(prefsItem);
     }
@@ -387,9 +331,9 @@ class WizardToggle extends QuickMenuToggle {
 
 const WizardIndicator = GObject.registerClass(
 class WizardIndicator extends SystemIndicator {
-    _init(controller, uuid) {
+    _init(controller, openPreferences) {
         super._init();
-        this.quickSettingsItems.push(new WizardToggle(controller, uuid));
+        this.quickSettingsItems.push(new WizardToggle(controller, openPreferences));
     }
     destroy() {
         this.quickSettingsItems.forEach(item => item.destroy());
@@ -441,7 +385,7 @@ export default class WizardManagerExtension extends Extension {
     _syncQuickSettingsIndicator() {
         if (this._settings.get_boolean('show-quick-settings')) {
             if (!this._indicator) {
-                this._indicator = new WizardIndicator(this._controller, this.metadata.uuid);
+                this._indicator = new WizardIndicator(this._controller, () => this.openPreferences());
                 Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);
             }
             return;
