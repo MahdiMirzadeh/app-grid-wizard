@@ -11,6 +11,10 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 const APP_FOLDER_SCHEMA_ID = 'org.gnome.desktop.app-folders';
 const APP_FOLDER_SCHEMA_PATH = '/org/gnome/desktop/app-folders/folders/';
 const DEBOUNCE_DELAY = 2000;
+const CHROME_APP_DESKTOP_ID_PATTERN = /^(chrome|chromium)-.+\.desktop$/i;
+const CHROME_APP_FILENAME_PATTERN = /\/(chrome|chromium)-.+\.desktop$/i;
+const CHROME_BROWSER_EXEC_PATTERN = /(^|\/)(google-chrome|google-chrome-stable|google-chrome-beta|google-chrome-unstable|chromium|chromium-browser)(\s|$)/i;
+const LOCAL_DESKTOP_FILE_PATH_FRAGMENT = `${GLib.get_home_dir()}/.local/share/applications/`;
 
 const FOLDER_CONFIGS = [
     {id: 'agw-accessories', schemaKey: 'folder-accessories', name: () => _('Accessories'), categories: ['Utility']},
@@ -111,10 +115,111 @@ class AppFolderManager {
             const folderSchema = Gio.Settings.new_with_path('org.gnome.desktop.app-folders.folder', folderPath);
             folderSchema.set_string('name', config.name());
             folderSchema.set_strv('categories', config.categories);
+            folderSchema.set_strv('apps', this._getExplicitApps(config));
         }
         
         console.debug('App-Grid-Wizard: Folders applied');
         this.resetLayout();
+    }
+
+    _getExplicitApps(config) {
+        if (config.id === 'agw-chrome-apps')
+            return this._getChromeAppDesktopIds();
+
+        return [];
+    }
+
+    _getChromeAppDesktopIds() {
+        const appSystem = Shell.AppSystem.get_default();
+        const appIds = [];
+
+        for (const app of appSystem.get_installed()) {
+            const appId = this._getDesktopAppId(app);
+            const appInfo = this._getDesktopAppInfo(app);
+
+            if (!appId || !appInfo)
+                continue;
+
+            if (!this._isChromeAppLauncher(appId, appInfo))
+                continue;
+
+            appIds.push(appId);
+        }
+
+        appIds.sort((a, b) => a.localeCompare(b));
+        console.debug(`App-Grid-Wizard: Detected ${appIds.length} Chrome app launcher(s)`);
+        return appIds;
+    }
+
+    _getDesktopAppId(app) {
+        if (app && typeof app.get_id === 'function')
+            return app.get_id();
+
+        return null;
+    }
+
+    _getDesktopAppInfo(app) {
+        if (!app)
+            return null;
+
+        if (typeof app.get_app_info === 'function')
+            return app.get_app_info();
+
+        if (typeof app.get_commandline === 'function' ||
+            typeof app.get_filename === 'function' ||
+            typeof app.get_categories === 'function')
+            return app;
+
+        return null;
+    }
+
+    _isChromeAppLauncher(appId, appInfo) {
+        const categories = this._getDesktopAppCategories(appInfo);
+        if (categories.includes('chrome-apps'))
+            return true;
+
+        const execLine = this._getDesktopAppExec(appInfo);
+        if (!execLine.includes('--app-id=') && !execLine.includes('--app='))
+            return false;
+
+        const filename = this._getDesktopAppFilename(appInfo);
+        return CHROME_APP_DESKTOP_ID_PATTERN.test(appId) ||
+            CHROME_APP_FILENAME_PATTERN.test(filename) ||
+            (filename.startsWith(LOCAL_DESKTOP_FILE_PATH_FRAGMENT) &&
+                CHROME_BROWSER_EXEC_PATTERN.test(execLine));
+    }
+
+    _getDesktopAppCategories(appInfo) {
+        try {
+            if (typeof appInfo.get_categories === 'function')
+                return (appInfo.get_categories() || '').toLowerCase();
+        } catch (e) {
+            console.debug('App-Grid-Wizard: Failed to read app categories', e);
+        }
+
+        return '';
+    }
+
+    _getDesktopAppExec(appInfo) {
+        try {
+            if (typeof appInfo.get_commandline === 'function')
+                return (appInfo.get_commandline() || '').toLowerCase();
+        } catch (e) {
+            console.debug('App-Grid-Wizard: Failed to read app command line', e);
+        }
+
+        return '';
+    }
+
+    _getDesktopAppFilename(appInfo) {
+        try {
+            if (typeof appInfo.get_filename === 'function')
+                return (appInfo.get_filename() || '').toLowerCase();
+        } catch (e) {
+            console.debug('App-Grid-Wizard: Failed to read app filename', e);
+        }
+
+        return '';
     }
 
     removeFolders() {

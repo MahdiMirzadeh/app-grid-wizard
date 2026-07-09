@@ -84,7 +84,7 @@ This extension changes only GSettings — no private Shell APIs.
 - App folders: `org.gnome.desktop.app-folders`
   - Key: `folder-children` (as)
   - Per-folder schema: `org.gnome.desktop.app-folders.folder` at path `/org/gnome/desktop/app-folders/folders/<id>/`
-    - Keys used: `name` (s), `categories` (as)
+    - Keys used: `name` (s), `categories` (as), `apps` (as)
   - Managed IDs: `agw-*` only (e.g. `agw-internet`)
 - App grid layout: `org.gnome.shell`
   - Key: `app-picker-layout` (aa{sv}) — snapshot/restore; empty `[]` lets GNOME auto-pack
@@ -102,7 +102,7 @@ This extension changes only GSettings — no private Shell APIs.
 - Apply (enable or folder pref change):
   1. Compute enabled `agw-*` IDs
   2. Set `folder-children = <enabled agw IDs>` (replaces non-AGW for compactness)
-  3. Write each folder’s `name`/`categories`
+  3. Write each folder’s `name`/`categories`, plus explicit `apps` for Chrome/Chromium app launchers
   4. Set `app-picker-layout = []` (deferred 300ms) to force compact pages
 - Restore (Quick Menu or Prefs):
   1. Write `folder-children = original-folder-children`
@@ -148,6 +148,7 @@ journalctl /usr/bin/gnome-shell -f | grep "App-Grid-Wizard"
 ### Limitations
 - GNOME always lists folders before apps; interleaving is not supported
 - No explicit uninstall hook — use Restore, then disable/uninstall
+- Chrome Apps detection depends on Chrome/Chromium app launchers exposing a `.desktop` ID and `--app` or `--app-id` in their launcher command
 
 ---
 
